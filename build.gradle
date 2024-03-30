@@ -1,9 +1,17 @@
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+
 plugins {
 	id 'java'
 	id 'war'
 //	id 'org.springframework.boot' version '3.2.4'
 	id 'org.springframework.boot' version '2.7.18'
 	id 'io.spring.dependency-management' version '1.1.4'
+
+	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
 }
 
 group = 'fivezero'
@@ -12,6 +20,7 @@ version = '0.0.1-SNAPSHOT'
 java {
 	sourceCompatibility = '11'
 }
+
 
 configurations {
 	compileOnly {
@@ -40,6 +49,8 @@ dependencies {
 	implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.0'
 	implementation group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-java8time'
 
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 //	호환x
 //	compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client'
 //	compile group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-java8time'
@@ -49,4 +60,29 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+
+/**
+ * Querydsl 라이브러리
+ */
+
+//def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
 }
