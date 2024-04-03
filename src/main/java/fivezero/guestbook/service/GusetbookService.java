@@ -3,7 +3,7 @@ package fivezero.guestbook.service;
 import fivezero.guestbook.dto.GuestbookDTO;
 import fivezero.guestbook.dto.PageRequestDTO;
 import fivezero.guestbook.dto.PageResultDTO;
-import fivezero.guestbook.entitiy.Guestbook;
+import fivezero.guestbook.entity.Guestbook;
 
 public interface GusetbookService {
 

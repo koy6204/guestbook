@@ -1,4 +1,4 @@
-package fivezero.guestbook.entitiy;
+package fivezero.guestbook.entity;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

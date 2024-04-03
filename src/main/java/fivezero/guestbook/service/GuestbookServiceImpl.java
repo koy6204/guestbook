@@ -1,9 +1,11 @@
 package fivezero.guestbook.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import fivezero.guestbook.dto.GuestbookDTO;
 import fivezero.guestbook.dto.PageRequestDTO;
 import fivezero.guestbook.dto.PageResultDTO;
-import fivezero.guestbook.entitiy.Guestbook;
+import fivezero.guestbook.entity.Guestbook;
 import fivezero.guestbook.repository.GuestbookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import fivezero.guestbook.entity.QGuestbook;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -35,8 +38,6 @@ public class GuestbookServiceImpl implements GusetbookService {
         repository.save(entity);
 
 
-
-
         return entity.getGno();
     }
 
@@ -45,7 +46,9 @@ public class GuestbookServiceImpl implements GusetbookService {
 
         Pageable pageable = requestDTO.getPageable(Sort.by("gno").descending());
 
-        Page<Guestbook> result = repository.findAll(pageable);
+        BooleanBuilder booleanBuilder = getSearch(requestDTO);//감색조건처리
+
+        Page<Guestbook> result = repository.findAll(booleanBuilder,pageable); //querydsl 사용
 
         Function<Guestbook, GuestbookDTO> fn = (entity -> entityToDto(entity));
 
@@ -81,7 +84,30 @@ public class GuestbookServiceImpl implements GusetbookService {
 
             repository.save(entity);
         }
-
-
     }
+
+    //querydsl 처리
+    private BooleanBuilder getSearch(PageRequestDTO requestDTO) {
+        String type = requestDTO.getType();
+        BooleanBuilder builder = new BooleanBuilder();
+        QGuestBook qGuestBook = QGuestBook.guestBook;
+        String keyword = requestDTO.getKeyword();
+        BooleanExpression expression = qGuestBook.gno.gt(0L);
+        builder.and(expression);
+        if(type == null || type.trim().length() == 0)
+            return builder;
+
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
+        if(type.contains("t"))
+            conditionBuilder.or(qGuestBook.title.contains(keyword));
+        if(type.contains("c"))
+            conditionBuilder.or(qGuestBook.content.contains(keyword));
+        if(type.contains("w"))
+            conditionBuilder.or(qGuestBook.writer.contains(keyword));
+
+        builder.and(conditionBuilder);
+        return builder;
+    }
+
+
 }

@@ -2,8 +2,8 @@ package fivezero.guestbook.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import fivezero.guestbook.entitiy.Guestbook;
-import fivezero.guestbook.entitiy.QGuestbook;
+import fivezero.guestbook.entity.Guestbook;
+import fivezero.guestbook.entity.QGuestbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package fivezero.guestbook.entitiy;
+package fivezero.guestbook.entity;
 
 import lombok.*;
 
