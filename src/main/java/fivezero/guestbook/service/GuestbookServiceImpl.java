@@ -6,6 +6,7 @@ import fivezero.guestbook.dto.GuestbookDTO;
 import fivezero.guestbook.dto.PageRequestDTO;
 import fivezero.guestbook.dto.PageResultDTO;
 import fivezero.guestbook.entity.Guestbook;
+import fivezero.guestbook.entity.QGuestbook;
 import fivezero.guestbook.repository.GuestbookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import fivezero.guestbook.entity.QGuestbook;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -90,21 +90,25 @@ public class GuestbookServiceImpl implements GusetbookService {
     private BooleanBuilder getSearch(PageRequestDTO requestDTO) {
         String type = requestDTO.getType();
         BooleanBuilder builder = new BooleanBuilder();
-        QGuestBook qGuestBook = QGuestBook.guestBook;
-        String keyword = requestDTO.getKeyword();
-        BooleanExpression expression = qGuestBook.gno.gt(0L);
-        builder.and(expression);
-        if(type == null || type.trim().length() == 0)
-            return builder;
 
+        QGuestbook qGuestBook = QGuestbook.guestbook;
+        String keyword = requestDTO.getKeyword();
+        BooleanExpression expression = qGuestBook.gno.gt(0L); // gno > 0 조건만 생성
+        builder.and(expression);
+        if(type == null || type.trim().length() == 0) { // 검색조건이 없는경우
+            return builder;
+        }
+
+        //검색조건 작성
         BooleanBuilder conditionBuilder = new BooleanBuilder();
-        if(type.contains("t"))
+        if(type.contains("t")) //title
             conditionBuilder.or(qGuestBook.title.contains(keyword));
-        if(type.contains("c"))
+        if(type.contains("c")) //contain
             conditionBuilder.or(qGuestBook.content.contains(keyword));
-        if(type.contains("w"))
+        if(type.contains("w")) //writer
             conditionBuilder.or(qGuestBook.writer.contains(keyword));
 
+        //모든 조건 통합
         builder.and(conditionBuilder);
         return builder;
     }
